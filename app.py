@@ -8,14 +8,14 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 db = SQLAlchemy(app)
 
-# 1. **Models**
+# Models
 # SQLAlchemy model for Task
 class TaskModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     is_completed = db.Column(db.Boolean, default=False)
 
-# 2. **Pydantic Schemas**
+# 2.Pydantic Schemas
 # Pydantic schema for creating a task
 class TaskCreateSchema(BaseModel):
     title: str = Field(..., description="The title of the task")
@@ -33,13 +33,13 @@ class TaskListSchema(BaseModel):
 with app.app_context():
     db.create_all()
 
-# Endpoint to create a new task
+# Create new task
 @app.route('/v1/tasks', methods=['POST'])
 def create_task():
     try:
-        # Retrieve JSON data from the request body
+        # get JSON data 
         data = request.get_json()
-        task_schema = TaskCreateSchema(**data)  # Validate input using Pydantic
+        task_schema = TaskCreateSchema(**data)  
 
         # Create a new TaskModel instance
         new_task = TaskModel(title=task_schema.title, is_completed=task_schema.is_completed)
@@ -180,4 +180,4 @@ def bulk_delete_tasks():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
