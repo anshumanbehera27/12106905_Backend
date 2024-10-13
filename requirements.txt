@@ -3,4 +3,3 @@ Flask-SQLAlchemy==2.5.1
 Flask-Migrate==4.0.1
 Pydantic==1.10.7
 requests==2.31.0
-Gunicorn
