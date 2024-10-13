@@ -187,4 +187,5 @@ To run the tests, ensure the Task Tracking Server is running locally. Then execu
 ```
 python test.py
 ```
+![Alt text](images/test.png)
 
