@@ -1,7 +1,12 @@
+import logging
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from pydantic import BaseModel, ValidationError, Field
 from typing import List, Optional
+from contextlib import contextmanager
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -9,29 +14,44 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 db = SQLAlchemy(app)
 
 # Models
-# SQLAlchemy model for Task
 class TaskModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     is_completed = db.Column(db.Boolean, default=False)
 
-# 2.Pydantic Schemas
-# Pydantic schema for creating a task
+# Pydantic Schemas
 class TaskCreateSchema(BaseModel):
-    title: str = Field(..., description="The title of the task")
+    title: str = Field(..., max_length=100, description="The title of the task")
     is_completed: Optional[bool] = Field(default=False, description="Completion status of the task")
 
 class TaskListSchema(BaseModel):
     id: int
     title: str
     is_completed: bool
-    
+
     class Config:
         from_attributes = True
 
 # Create the database
 with app.app_context():
     db.create_all()
+
+@contextmanager
+def session_scope():
+    session = db.session
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+def api_response(data=None, error=None, status=200):
+    response = {"data": data, "error": error}
+    return jsonify(response), status
+
 
 # Create new task
 @app.route('/v1/tasks', methods=['POST'])
