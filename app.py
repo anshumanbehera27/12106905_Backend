@@ -52,6 +52,11 @@ def api_response(data=None, error=None, status=200):
     response = {"data": data, "error": error}
     return jsonify(response), status
 
+@app.route('/')
+def hello():
+    return jsonify("Welcome to The Task Api")
+    
+
 
 # Create new task
 @app.route('/v1/tasks', methods=['POST'])
